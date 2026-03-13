@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitignore" />
+  </Folder>
   <Project Path="Inventory.Core/Inventory.Core.csproj" />
   <Project Path="Inventory.Infrastructure/Inventory.Infrastructure.csproj" />
   <Project Path="Inventory/Inventory.csproj" />

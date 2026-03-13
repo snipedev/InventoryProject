@@ -1,15 +1,29 @@
+using Inventory.Endpoints;
 using Inventory.Health;
 using Inventory.Infrastructure;
 using Inventory.Infrastructure.DI;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
-using Inventory.Endpoints;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Serilog;
 
 public partial class Program
 {
     private static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+
+        Log.Logger = new LoggerConfiguration()
+            .ReadFrom.Configuration(builder.Configuration)    // picks Serilog from appsettings.json
+            .Enrich.FromLogContext()
+            .Enrich.WithMachineName()
+            .Enrich.WithProcessId()
+            .Enrich.WithThreadId()
+            .WriteTo.Console() // fallback to console if no config
+            .CreateLogger();
+
+        builder.Host.UseSerilog();
+
 
         // Add services to the container.
 
@@ -43,6 +57,17 @@ public partial class Program
         app.UseAuthorization();
 
         app.MapInventoryEndpoints();
+
+
+        app.UseSerilogRequestLogging(opts =>
+        {
+            opts.EnrichDiagnosticContext = (diagCtx, httpCtx) =>
+            {
+                diagCtx.Set("ClientIP", httpCtx.Connection.RemoteIpAddress?.ToString());
+                diagCtx.Set("UserAgent", httpCtx.Request.Headers.UserAgent.ToString());
+            };
+        });
+
 
         app.MapHealthChecks("/health");
 
