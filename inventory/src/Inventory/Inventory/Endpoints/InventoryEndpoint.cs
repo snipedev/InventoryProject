@@ -3,6 +3,8 @@ using Inventory.Core.ValueObjects;
 using Inventory.Core.Errors;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Inventory.Models;
+using Asp.Versioning;
+using Asp.Versioning.Builder;
 
 namespace Inventory.Endpoints;
 
@@ -10,9 +12,11 @@ public static class InventoryEndpoints
 {
     public static IEndpointRouteBuilder MapInventoryEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/inventory").WithTags("Inventory");
 
-        // GET /inventory/{sku}
+        var group = app.MapGroup("/inventory")
+            .WithTags("Inventory");
+
+        // GET /v1/inventory/{sku}
         group.MapGet("/{sku}", async Task<Results<Ok<InventoryDto>, NotFound<string>>> (
             string sku, IInventoryReader reader, CancellationToken ct) =>
         {
@@ -22,7 +26,7 @@ public static class InventoryEndpoints
                 : TypedResults.Ok(InventoryDto.FromDomain(entity));
         });
 
-        // POST /inventory
+        // POST /v1/inventory
         group.MapPost("/", async Task<Results<Created<InventoryDto>, Conflict<string>, BadRequest<string>>> (
             CreateSkuRequest req, IInventoryWriter writer, CancellationToken ct) =>
         {
@@ -40,10 +44,10 @@ public static class InventoryEndpoints
             }
 
             var dto = InventoryDto.FromDomain(result.Value!);
-            return TypedResults.Created($"/inventory/{dto.Sku}", dto);
+            return TypedResults.Created($"/v1/inventory/{dto.Sku}", dto);
         });
 
-        // POST /inventory/{sku}/adjust
+        // POST /v1/inventory/{sku}/adjust
         group.MapPost("/{sku}/adjust", async Task<Results<Ok<InventoryDto>, NotFound<string>, BadRequest<string>>> (
             string sku, AdjustRequest req, IInventoryWriter writer, CancellationToken ct) =>
         {

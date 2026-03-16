@@ -16,7 +16,7 @@ namespace Inventory.Infrastructure.DI
             services.AddDbContext<InventoryDbContext>(opt => {
                 opt.UseNpgsql(conn, npgsql =>
                 {
-                    npgsql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(2), null);
+                    npgsql.EnableRetryOnFailure(0, TimeSpan.FromSeconds(2), null);
                 });
             });
 
@@ -26,6 +26,12 @@ namespace Inventory.Infrastructure.DI
             // Repositories / Services
             services.AddScoped<IInventoryReader, InventoryRepository>();
             services.AddScoped<IInventoryWriter, InventoryRepository>();
+
+
+            services.AddScoped<IInventoryAdminReader, InventoryAdminReader>();
+            services.AddScoped<IReservationreader, ReservationReader>();
+
+            services.AddScoped<IReservationWriter,ReservationWriter>();
 
 
             return services;

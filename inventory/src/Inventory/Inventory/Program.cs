@@ -1,8 +1,6 @@
 using Inventory.Endpoints;
 using Inventory.Health;
-using Inventory.Infrastructure;
 using Inventory.Infrastructure.DI;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Serilog;
 
@@ -40,6 +38,10 @@ public partial class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
+        
+
+        
+
 
         var app = builder.Build();
 
@@ -55,6 +57,17 @@ public partial class Program
         app.UseHttpsRedirection();
 
         app.UseAuthorization();
+
+        //----------versioning----------------//
+        var v1 = app.MapGroup("/api/v1");
+        var v2 = app.MapGroup("/api/v2");
+
+        v1.MapInventoryEndpoints();
+        // need to add reservation endpoints
+
+        v2.MapInventoryEndpoints();
+        v2.MapAdminV2Endpoints();
+        v2.MapReservationEndpoints();
 
         app.MapInventoryEndpoints();
 
