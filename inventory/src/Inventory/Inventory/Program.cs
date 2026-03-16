@@ -2,6 +2,7 @@ using Inventory.Endpoints;
 using Inventory.Health;
 using Inventory.Infrastructure.DI;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Scalar.AspNetCore;
 using Serilog;
 
 public partial class Program
@@ -36,11 +37,6 @@ public partial class Program
             .AddCheck<DatabaseHealthCheck>("db", HealthStatus.Degraded);
 
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
-
-        
-
-        
 
 
         var app = builder.Build();
@@ -50,8 +46,9 @@ public partial class Program
 // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())
         {
-            app.UseSwagger();
-            app.UseSwaggerUI();
+            app.MapOpenApi();
+            app.MapScalarApiReference();
+            app.UseDeveloperExceptionPage();
         }
 
         app.UseHttpsRedirection();
